@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head('Mis Préstamos - Biblioteca Virtual')}"></head>
+    <body>
+        <!-- Header -->
+        <header th:replace="~{layout/plantilla :: header}"></header>
+
+        <!-- Navbar -->
+        <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+        <div class="container py-4">
+            <h2 class="mb-4"><i class="bi bi-bookmark"></i> Mis Préstamos</h2>
+
+            <!-- Alertas -->
+            <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Pestañas para organizar los préstamos -->
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="activos-tab" data-bs-toggle="tab" data-bs-target="#activos" type="button" role="tab">
+                        <i class="bi bi-book"></i> Préstamos Activos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab">
+                        <i class="bi bi-clock-history"></i> Historial
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <!-- Préstamos Activos -->
+                <div class="tab-pane fade show active" id="activos" role="tabpanel">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Libro</th>
+                                            <th>Fecha Préstamo</th>
+                                            <th>Fecha Devolución</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="prestamo : ${prestamos}" th:if="${prestamo.estado == T(com.practica.domain.Prestamo.EstadoPrestamo).PRESTADO}">
+                                            <td>
+                                                <a th:href="@{/libros/{id}(id=${prestamo.libro.id})}" th:text="${prestamo.libro.titulo}">Título del libro</a>
+                                                <small class="text-muted d-block" th:text="${prestamo.libro.autor}">Autor</small>
+                                            </td>
+                                            <td th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}">01/01/2023</td>
+                                            <td th:text="${#temporals.format(prestamo.fechaDevolucionPrevista, 'dd/MM/yyyy')}">15/01/2023</td>
+                                            <td>
+                                                <span class="badge rounded-pill bg-primary" th:if="${prestamo.fechaDevolucionPrevista.isAfter(T(java.time.LocalDate).now())}">
+                                                    <i class="bi bi-bookmark-check"></i> En préstamo
+                                                </span>
+                                                <span class="badge rounded-pill bg-danger" th:if="${prestamo.fechaDevolucionPrevista.isBefore(T(java.time.LocalDate).now()) || prestamo.fechaDevolucionPrevista.isEqual(T(java.time.LocalDate).now())}">
+                                                    <i class="bi bi-exclamation-triangle"></i> Vencido
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/prestamos/devolver/{id}(id=${prestamo.id})}" class="btn btn-sm btn-success"
+                                                   onclick="return confirm('¿Está seguro de devolver este libro?')">
+                                                    <i class="bi bi-check-circle"></i> Devolver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.select(prestamos, p -> p.estado == T(com.practica.domain.Prestamo.EstadoPrestamo).PRESTADO).isEmpty()}">
+                                            <td colspan="5" class="text-center">No tienes préstamos activos</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Préstamos -->
+                <div class="tab-pane fade" id="historial" role="tabpanel">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Libro</th>
+                                            <th>Fecha Préstamo</th>
+                                            <th>Fecha Devolución Prevista</th>
+                                            <th>Fecha Devolución Real</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="prestamo : ${prestamos}" th:if="${prestamo.estado == T(com.practica.domain.Prestamo.EstadoPrestamo).DEVUELTO}">
+                                            <td>
+                                                <a th:href="@{/libros/{id}(id=${prestamo.libro.id})}" th:text="${prestamo.libro.titulo}">Título del libro</a>
+                                                <small class="text-muted d-block" th:text="${prestamo.libro.autor}">Autor</small>
+                                            </td>
+                                            <td th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}">01/01/2023</td>
+                                            <td th:text="${#temporals.format(prestamo.fechaDevolucionPrevista, 'dd/MM/yyyy')}">15/01/2023</td>
+                                            <td th:text="${#temporals.format(prestamo.fechaDevolucionReal, 'dd/MM/yyyy')}">10/01/2023</td>
+                                            <td>
+                                                <span class="badge rounded-pill bg-success">
+                                                    <i class="bi bi-check-circle"></i> Devuelto
+                                                </span>
+                                                <span class="badge rounded-pill bg-danger"
+                                                      th:if="${prestamo.fechaDevolucionReal.isAfter(prestamo.fechaDevolucionPrevista)}">
+                                                    <i class="bi bi-exclamation-triangle"></i> Tardío
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.select(prestamos, p -> p.estado == T(com.practica.domain.Prestamo.EstadoPrestamo).DEVUELTO).isEmpty()}">
+                                            <td colspan="5" class="text-center">No tienes préstamos devueltos</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a th:href="@{/libros}" class="btn btn-primary">
+                    <i class="bi bi-book"></i> Ver catálogo de libros
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer th:replace="~{layout/plantilla :: footer}"></footer>
+    </body>
+</html>
+

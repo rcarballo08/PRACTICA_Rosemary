@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head('Registro de Usuario - Biblioteca Virtual')}"></head>
+<body class="bg-light">
+    <!-- Header -->
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    
+    <!-- Navbar -->
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-person-plus"></i> Registro de Usuario</h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/registro}" method="post" th:object="${usuario}">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="apellido" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="apellido" th:field="*{apellido}" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nombre de Usuario</label>
+                                <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                                <small class="text-muted">El nombre de usuario debe tener al menos 4 caracteres.</small>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" id="password" th:field="*{password}" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                                    <small class="text-muted">La contraseña debe tener al menos 6 caracteres.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-person-plus"></i> Registrarse
+                                </button>
+                                <a th:href="@{/login}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-box-arrow-in-right"></i> Ya tengo una cuenta
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
+</html>

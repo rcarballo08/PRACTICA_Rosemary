@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head('Solicitar Préstamo - Biblioteca Virtual')}"></head>
+<body>
+    <!-- Header -->
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    
+    <!-- Navbar -->
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-bookmark-plus"></i> Solicitar Préstamo</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-4">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-info-circle-fill display-6"></i>
+                                </div>
+                                <div>
+                                    <h5>Información del Préstamo</h5>
+                                    <p class="mb-0">
+                                        Estás solicitando un préstamo del libro "<strong th:text="${libro.titulo}">Título del Libro</strong>". 
+                                        Por favor, verifica los detalles y confirma el préstamo.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <form th:action="@{/prestamos/confirmar}" method="post">
+                            <input type="hidden" name="libroId" th:value="${libro.id}">
+                            
+                            <div class="mb-4">
+                                <h5>Detalles del Libro</h5>
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h5 th:text="${libro.titulo}">Título del Libro</h5>
+                                                <p class="mb-1">
+                                                    <strong>Autor:</strong> <span th:text="${libro.autor}">Autor</span>
+                                                </p>
+                                                <p class="mb-1">
+                                                    <strong>Categoría:</strong> <span th:text="${libro.categoria.nombre}">Categoría</span>
+                                                </p>
+                                                <p class="mb-0">
+                                                    <strong>ISBN:</strong> <span th:text="${libro.isbn}">ISBN</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-4 text-center">
+                                                <div class="border rounded p-3 bg-light">
+                                                    <h6>Disponibilidad</h6>
+                                                    <p class="mb-0">
+                                                        <span class="badge bg-success">
+                                                            <i class="bi bi-book"></i> <span th:text="${libro.ejemplaresDisponibles}">3</span> ejemplares
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="fechaPrestamo" class="form-label">Fecha de Préstamo</label>
+                                    <input type="date" class="form-control" id="fechaPrestamo" th:value="${fechaPrestamo}" disabled>
+                                    <small class="text-muted">La fecha de préstamo se establece automáticamente como hoy</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fechaDevolucionPrevista" class="form-label">Fecha de Devolución</label>
+                                    <input type="date" class="form-control" id="fechaDevolucionPrevista" name="fechaDevolucionPrevista" 
+                                           th:value="${fechaDevolucionPrevista}" required min="${fechaPrestamo}">
+                                    <small class="text-muted">Fecha prevista para devolver el libro</small>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> Al confirmar el préstamo, aceptas las siguientes condiciones:
+                                <ul class="mb-0 mt-2">
+                                    <li>Devolver el libro en buen estado antes de la fecha de devolución</li>
+                                    <li>Pagar las sanciones correspondientes en caso de retraso</li>
+                                    <li>Responsabilizarte por cualquier daño al material</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/libros/{id}(id=${libro.id})}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-bookmark-check"></i> Confirmar Préstamo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
+</html>

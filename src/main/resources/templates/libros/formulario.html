@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head(${libro.id == null ? 'Nuevo Libro' : 'Editar Libro'} + ' - Biblioteca Virtual')}"></head>
+<body>
+    <!-- Header -->
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    
+    <!-- Navbar -->
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi" th:classappend="${libro.id == null ? 'bi-plus-circle' : 'bi-pencil'}"></i>
+                            <span th:text="${libro.id == null ? 'Nuevo Libro' : 'Editar Libro'}">Libro</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/libros/guardar}" method="post" th:object="${libro}">
+                            <input type="hidden" th:field="*{id}">
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <label for="titulo" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="titulo" th:field="*{titulo}" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="isbn" class="form-label">ISBN</label>
+                                    <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="autor" class="form-label">Autor</label>
+                                    <input type="text" class="form-control" id="autor" th:field="*{autor}" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('autor')}" th:errors="*{autor}"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="anioPublicacion" class="form-label">Año de Publicación</label>
+                                    <input type="number" class="form-control" id="anioPublicacion" th:field="*{anioPublicacion}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="ejemplaresDisponibles" class="form-label">Ejemplares</label>
+                                    <input type="number" class="form-control" id="ejemplaresDisponibles" th:field="*{ejemplaresDisponibles}" required min="0">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('ejemplaresDisponibles')}" th:errors="*{ejemplaresDisponibles}"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="editorial" class="form-label">Editorial</label>
+                                    <input type="text" class="form-control" id="editorial" th:field="*{editorial}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="categoria" class="form-label">Categoría</label>
+                                    <select class="form-select" id="categoria" th:field="*{categoria.id}" required>
+                                        <option value="">Seleccione una categoría</option>
+                                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/libros}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
+</html>

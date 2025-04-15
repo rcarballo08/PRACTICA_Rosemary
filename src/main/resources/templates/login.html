@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head('Iniciar Sesión - Biblioteca Virtual')}"></head>
+<body class="bg-light">
+    <!-- Header -->
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    
+    <!-- Navbar -->
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Alerta de error -->
+                        <div th:if="${param.error}" class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Usuario o contraseña incorrectos
+                        </div>
+                        
+                        <!-- Alerta de cierre de sesión -->
+                        <div th:if="${param.logout}" class="alert alert-success">
+                            <i class="bi bi-check-circle-fill"></i> Has cerrado sesión correctamente
+                        </div>
+                        
+                        <!-- Mensaje de registro exitoso -->
+                        <div th:if="${mensaje != null}" class="alert alert-success">
+                            <i class="bi bi-check-circle-fill"></i> <span th:text="${mensaje}"></span>
+                        </div>
+                        
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nombre de Usuario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" id="username" name="username" class="form-control" required autofocus>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                    <input type="password" id="password" name="password" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                                </button>
+                                <a th:href="@{/registro}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-person-plus"></i> Crear una cuenta
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center text-muted">
+                        <small>¿Olvidaste tu contraseña? Contacta al administrador de la biblioteca</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
+</html>

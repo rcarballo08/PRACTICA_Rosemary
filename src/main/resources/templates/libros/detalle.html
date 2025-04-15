@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/plantilla :: head('Detalle de Libro - Biblioteca Virtual')}"></head>
+<body>
+    <!-- Header -->
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    
+    <!-- Navbar -->
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+    <div class="container py-4">
+        <!-- Alertas -->
+        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0" th:text="${libro.titulo}">Título del Libro</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-person"></i> Autor</h5>
+                                <p class="lead" th:text="${libro.autor}">Autor del libro</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-tag"></i> Categoría</h5>
+                                <p class="lead" th:text="${libro.categoria.nombre}">Categoría del libro</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <h5><i class="bi bi-upc"></i> ISBN</h5>
+                                <p th:text="${libro.isbn}">ISBN del libro</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h5><i class="bi bi-building"></i> Editorial</h5>
+                                <p th:text="${libro.editorial ?: 'No especificada'}">Editorial</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h5><i class="bi bi-calendar"></i> Año</h5>
+                                <p th:text="${libro.anioPublicacion ?: 'No especificado'}">Año de publicación</p>
+                            </div>
+                        </div>
+                        
+                        <div class="alert" th:classappend="${libro.ejemplaresDisponibles > 0 ? 'alert-success' : 'alert-danger'}">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <i class="bi" th:classappend="${libro.ejemplaresDisponibles > 0 ? 'bi-check-circle' : 'bi-x-circle'}"></i>
+                                    <strong th:text="${libro.ejemplaresDisponibles > 0 ? 'Disponible' : 'No disponible'}">Estado</strong>
+                                    <p class="mb-0">
+                                        <span th:text="${libro.ejemplaresDisponibles}">0</span> ejemplares disponibles para préstamo
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/libros}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver al catálogo
+                            </a>
+                            <div>
+                                <a th:if="${libro.ejemplaresDisponibles > 0}" th:href="@{/prestamos/solicitar/{id}(id=${libro.id})}" 
+                                   class="btn btn-success" sec:authorize="isAuthenticated()">
+                                    <i class="bi bi-bookmark-plus"></i> Solicitar préstamo
+                                </a>
+                                <div sec:authorize="hasRole('ADMIN')" class="d-inline-block ms-2">
+                                    <a th:href="@{/libros/editar/{id}(id=${libro.id})}" class="btn btn-warning">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <a th:href="@{/libros/eliminar/{id}(id=${libro.id})}" 
+                                       class="btn btn-danger ms-2"
+                                       onclick="return confirm('¿Está seguro de eliminar este libro?')">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información de Préstamos</h5>
+                    </div>
+                    <div class="card-body">
+                        <p sec:authorize="!isAuthenticated()">
+                            <i class="bi bi-exclamation-triangle"></i> Debe <a th:href="@{/login}">iniciar sesión</a> para solicitar préstamos.
+                        </p>
+                        <div sec:authorize="isAuthenticated()">
+                            <p>Para solicitar un préstamo de este libro:</p>
+                            <ol>
+                                <li>Haga clic en el botón "Solicitar préstamo"</li>
+                                <li>Confirme los datos del préstamo</li>
+                                <li>El plazo estándar de préstamo es de 15 días</li>
+                            </ol>
+                            <p>
+                                <i class="bi bi-exclamation-circle"></i> Recuerde devolver el libro dentro del plazo 
+                                para evitar sanciones en futuros préstamos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow" sec:authorize="hasRole('ADMIN')">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-gear"></i> Administración</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Opciones adicionales para administradores:</p>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-pencil"></i> <a th:href="@{/libros/editar/{id}(id=${libro.id})}">Editar información del libro</a></li>
+                            <li><i class="bi bi-trash"></i> <a th:href="@{/libros/eliminar/{id}(id=${libro.id})}" 
+                                   onclick="return confirm('¿Está seguro de eliminar este libro?')">Eliminar libro</a></li>
+                            <li><i class="bi bi-bookmark"></i> <a th:href="@{/prestamos}">Ver todos los préstamos</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
+</html>
