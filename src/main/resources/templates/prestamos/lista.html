@@ -1,15 +1,88 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head('Lista de Préstamos')}"></head>
+<body>
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+ 
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Gestión de Préstamos</h3>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a th:href="@{/prestamos/pendientes}" class="btn btn-outline-light btn-sm me-2">Pendientes</a>
+                        <a th:href="@{/prestamos/vencidos}" class="btn btn-danger btn-sm">Vencidos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Mensajes -->
+                <div class="alert alert-success" th:if="${mensaje != null}" th:text="${mensaje}"></div>
+                <div class="alert alert-danger" th:if="${error != null}" th:text="${error}"></div>
+                
+                <!-- Sin préstamos -->
+                <div th:if="${prestamos == null || prestamos.isEmpty()}" class="alert alert-info">
+                    No hay préstamos registrados.
+                </div>
+                
+                <!-- Tabla de préstamos -->
+                <div th:if="${prestamos != null && !prestamos.isEmpty()}" class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Libro</th>
+                                <th>Usuario</th>
+                                <th>Fecha Préstamo</th>
+                                <th>Fecha Devolución</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${prestamos}">
+                                <td th:text="${p.id}"></td>
+                                
+                                <!-- Título de libro -->
+                                <td>
+                                    <span th:if="${p.libro != null}" th:text="${p.libro.titulo}"></span>
+                                    <span th:unless="${p.libro != null}">-</span>
+                                </td>
+                                
+                                <!-- Nombre de usuario -->
+                                <td>
+                                    <span th:if="${p.usuario != null}" th:text="${p.usuario.username}"></span>
+                                    <span th:unless="${p.usuario != null}">-</span>
+                                </td>
+                                
+                                <!-- Fechas -->
+                                <td th:text="${#temporals.format(p.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+                                <td th:text="${#temporals.format(p.fechaDevolucionPrevista, 'dd-MM-yyyy')}"></td>
+                                
+                                <!-- Estado -->
+                                <td>
+                                    <span th:text="${p.estado}"></span>
+                                </td>
+                                
+                                <!-- Acciones -->
+                                <td>
+                                    <a th:if="${p.estado.name() == 'PRESTADO'}" 
+                                       th:href="@{/prestamos/devolver/{id}(id=${p.id})}" 
+                                       class="btn btn-sm btn-success">
+                                        Devolver
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
 </html>

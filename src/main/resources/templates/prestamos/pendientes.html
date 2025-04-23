@@ -1,15 +1,120 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head('Préstamos Pendientes')}">
+        <title>Préstamos Pendientes</title>
     </head>
     <body>
-        <div>TODO write content</div>
+        <header th:replace="~{layout/plantilla :: header}"></header>
+        <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h3><i class="bi bi-hourglass"></i> Préstamos Pendientes</h3>
+                    <div>
+                        <a th:href="@{/prestamos}" class="btn btn-outline-light btn-sm me-2">
+                            <i class="bi bi-arrow-left"></i> Todos los Préstamos
+                        </a>
+                        <a th:href="@{/prestamos/vencidos}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-exclamation-triangle"></i> Vencidos
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+                    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+                    <div th:if="${#lists.isEmpty(prestamos)}" class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No hay préstamos pendientes en este momento.
+                    </div>
+
+                    <div th:if="${not #lists.isEmpty(prestamos)}" class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Libro</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha Préstamo</th>
+                                    <th>Fecha Devolución</th>
+                                    <th>Días Restantes</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="prestamo : ${prestamos}"
+                                    th:with="diasRestantes=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDate).now(), prestamo.fechaDevolucionPrevista)}"
+                                    th:classappend="${diasRestantes < 0 ? 'table-danger' : (diasRestantes == 0 ? 'table-warning' : '')}">
+
+                                    <td th:text="${prestamo.id}"></td>
+                                    <td>
+                                        <a th:href="@{/libros/{id}(id=${prestamo.libro.id})}" th:text="${prestamo.libro.titulo}"></a>
+                                    </td>
+                                    <td>
+                                        <span th:text="${prestamo.usuario.nombre != null ? prestamo.usuario.nombre + ' ' + (prestamo.usuario.apellidos != null ? prestamo.usuario.apellidos : '') : prestamo.usuario.username}"></span>
+                                        <br>
+                                        <small class="text-muted" th:text="${prestamo.usuario.email}"></small>
+                                    </td>
+                                    <td th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+                                    <td th:text="${#temporals.format(prestamo.fechaDevolucionPrevista, 'dd-MM-yyyy')}"></td>
+                                    <td>
+                                        <span th:class="${diasRestantes < 0 ? 'badge bg-danger' : (diasRestantes == 0 ? 'badge bg-warning' : 'badge bg-success')}"
+                                              th:text="${diasRestantes < 0 ? (diasRestantes * -1) + ' días de retraso' : (diasRestantes == 0 ? 'Hoy' : diasRestantes + ' días')}">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/prestamos/devolver/{id}(id=${prestamo.id})}"
+                                               class="btn btn-sm btn-success"
+                                               onclick="return confirm('¿Confirmar la devolución de este libro?')">
+                                                <i class="bi bi-box-arrow-in-left"></i> Devolver
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-info"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#contactModal-' + ${prestamo.id}">
+                                                <i class="bi bi-envelope"></i> Contactar
+                                            </button>
+                                        </div>
+
+                                        <!-- Modal para contactar al usuario -->
+                                        <div class="modal fade" th:id="'contactModal-' + ${prestamo.id}" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="contactModalLabel">Recordatorio de Préstamo</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form th:action="@{/prestamos/contactar/{id}(id=${prestamo.usuario.id})}" method="post">
+                                                            <div class="mb-3">
+                                                                <label for="asunto" class="form-label">Asunto</label>
+                                                                <input type="text" class="form-control" name="asunto" id="asunto"
+                                                                       th:value="'Recordatorio de devolución de libro'" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="mensaje" class="form-label">Mensaje</label>
+                                                                <textarea class="form-control" name="mensaje" id="mensaje" rows="4"
+                                                                          th:text="'Hola ' + ${prestamo.usuario.nombre} + ', te recordamos que debes devolver el libro \"' + ${prestamo.libro.titulo} + '\" antes del ' + ${#temporals.format(prestamo.fechaDevolucionPrevista, 'dd-MM-yyyy')} + '.'" required></textarea>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer th:replace="~{layout/plantilla :: footer}"></footer>
     </body>
 </html>

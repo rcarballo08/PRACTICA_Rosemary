@@ -94,7 +94,7 @@ public class LibroController {
             return "libros/formulario";
         }
  
-        // Verificar si el ISBN ya existe
+        // Verificamos si el ISBN ya existe
         if (libro.getId() == null && libroService.existeIsbn(libro.getIsbn())) {
             result.rejectValue("isbn", "error.libro", "Ya existe un libro con este ISBN");
             model.addAttribute("categorias", categoriaService.listarTodas());

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head('Detalle de Mensaje')}"></head>
+<body>
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+ 
+    <div class="container mt-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3>Detalle del Mensaje</h3>
+                <a th:href="@{/contacto/mensajes}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left"></i> Volver a la lista
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Mensaje original -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>De:</strong> <span th:text="${contacto.nombre}"></span>
+                                (<span th:text="${contacto.email}"></span>)
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <strong>Fecha:</strong> 
+                                <span th:text="${#temporals.format(contacto.fechaEnvio, 'dd-MM-yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${contacto.asunto}"></h5>
+                        <p class="card-text" th:text="${contacto.mensaje}"></p>
+                    </div>
+                </div>
+                
+                <!-- Respuestas existentes -->
+                <div class="mb-4" th:if="${!respuestas.isEmpty()}">
+                    <h4>Respuestas anteriores</h4>
+                    <div class="list-group">
+                        <div class="list-group-item list-group-item-action" th:each="respuesta : ${respuestas}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Respuesta de <span th:text="${respuesta.respondidoPor}"></span></h5>
+                                <small th:text="${#temporals.format(respuesta.fechaRespuesta, 'dd-MM-yyyy HH:mm')}"></small>
+                            </div>
+                            <p class="mb-1" th:text="${respuesta.mensaje}"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulario de respuesta -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h4>Agregar respuesta</h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/contacto/responder}" th:object="${nuevaRespuesta}" method="post">
+                            <input type="hidden" th:field="*{contacto}">
+                            
+                            <div class="mb-3">
+                                <label for="mensaje" class="form-label">Mensaje:</label>
+                                <textarea th:field="*{mensaje}" class="form-control" rows="5" required
+                                         placeholder="Escribe tu respuesta aquí..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">Guardar Respuesta</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
+</html>

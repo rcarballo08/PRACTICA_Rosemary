@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
-
 @Controller
 @RequestMapping("/prestamos")
 public class PrestamoController {
@@ -63,9 +61,9 @@ public class PrestamoController {
 
     @GetMapping("/solicitar/{libroId}")
     @PreAuthorize("isAuthenticated()")
-    public String solicitarPrestamo(@PathVariable Long libroId, Model model) {
+    public String solicitarPrestamo(@PathVariable Long libroId, Model model, RedirectAttributes attributes) {
         if (!libroService.tieneEjemplaresDisponibles(libroId)) {
-            model.addAttribute("error", "No hay ejemplares disponibles de este libro");
+            attributes.addFlashAttribute("error", "No hay ejemplares disponibles de este libro");
             return "redirect:/libros/" + libroId;
         }
         
@@ -114,8 +112,11 @@ public class PrestamoController {
             return "redirect:/prestamos/mis-prestamos";
         }
         
-        if (!prestamo.get().getUsuario().getId().equals(usuario.get().getId()) && 
-            !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+        // Verificamos si es el propietario del préstamo o un administrador
+        boolean esAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean esPropietario = prestamo.get().getUsuario().getId().equals(usuario.get().getId());
+        
+        if (!esPropietario && !esAdmin) {
             attributes.addFlashAttribute("error", "No tiene permiso para devolver este préstamo");
             return "redirect:/prestamos/mis-prestamos";
         }
@@ -127,7 +128,12 @@ public class PrestamoController {
             attributes.addFlashAttribute("error", "Error al devolver el libro: " + e.getMessage());
         }
         
-        return "redirect:/prestamos/mis-prestamos";
+        // Redireccionamos según el rol
+        if (esAdmin && !esPropietario) {
+            return "redirect:/prestamos";
+        } else {
+            return "redirect:/prestamos/mis-prestamos";
+        }
     }
 
     @GetMapping("/pendientes")
@@ -141,6 +147,20 @@ public class PrestamoController {
     @PreAuthorize("hasRole('ADMIN')")
     public String listarPrestamosVencidos(Model model) {
         model.addAttribute("prestamos", prestamoService.buscarPrestamosVencidos());
+        // Agregamos datos para la visualización
+        model.addAttribute("fechaActual", LocalDate.now());
         return "prestamos/vencidos";
+    }
+    
+    @PostMapping("/contactar/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String contactarUsuario(@PathVariable Long usuarioId, 
+                                  @RequestParam String asunto,
+                                  @RequestParam String mensaje,
+                                  RedirectAttributes attributes) {
+        // Aquí se implementaría la lógica para enviar el correo
+        // Esta es una función simulada, aqui debemos de integrar un correo real
+        attributes.addFlashAttribute("mensaje", "Mensaje enviado correctamente al usuario");
+        return "redirect:/prestamos/vencidos";
     }
 }

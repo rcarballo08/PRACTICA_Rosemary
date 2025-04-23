@@ -66,12 +66,12 @@ public class PrestamoServiceImpl implements PrestamoService {
     @Override
     @Transactional
     public Prestamo realizarPrestamo(Long libroId, Long usuarioId, LocalDate fechaDevolucionPrevista) {
-        // Verificar disponibilidad del libro
+        // Verificamos la disponibilidad del libro
         if (!libroService.tieneEjemplaresDisponibles(libroId)) {
             throw new IllegalStateException("No hay ejemplares disponibles para este libro");
         }
 
-        // Obtener libro y usuario
+        // Obtenemos el libro y usuario
         Optional<Libro> optionalLibro = libroService.buscarPorId(libroId);
         Optional<Usuario> optionalUsuario = usuarioService.buscarPorId(usuarioId);
 
@@ -82,7 +82,7 @@ public class PrestamoServiceImpl implements PrestamoService {
         Libro libro = optionalLibro.get();
         Usuario usuario = optionalUsuario.get();
 
-        // Actualizar ejemplares disponibles
+        // Actualizamos ejemplares disponibles
         libroService.actualizarEjemplaresDisponibles(libroId, -1);
 
         // Crear y guardar el préstamo
@@ -107,16 +107,16 @@ public class PrestamoServiceImpl implements PrestamoService {
 
         Prestamo prestamo = optionalPrestamo.get();
 
-        // Verificar que el préstamo esté en estado PRESTADO
+        // Verificamos que el préstamo esté en estado PRESTADO
         if (prestamo.getEstado() != Prestamo.EstadoPrestamo.PRESTADO) {
             throw new IllegalStateException("Este préstamo ya ha sido devuelto o está en otro estado");
         }
 
-        // Actualizar el estado del préstamo
+        // Actualizamos el estado del préstamo
         prestamo.setEstado(Prestamo.EstadoPrestamo.DEVUELTO);
         prestamo.setFechaDevolucionReal(LocalDate.now());
 
-        // Actualizar ejemplares disponibles
+        // Actualizamos ejemplares disponibles
         libroService.actualizarEjemplaresDisponibles(prestamo.getLibro().getId(), 1);
 
         return prestamoDao.save(prestamo);

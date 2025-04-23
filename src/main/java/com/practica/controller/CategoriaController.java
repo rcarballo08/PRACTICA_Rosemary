@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/categoria")
+@RequestMapping("/categorias")
 @PreAuthorize("hasRole('ADMIN')")
 public class CategoriaController {
 
@@ -43,7 +43,7 @@ public class CategoriaController {
             return "categoria/formulario";
         }
         
-        // Verificar si el nombre ya existe
+        // Verificamos si el nombre ya existe
         if (categoria.getId() == null && categoriaService.existeNombre(categoria.getNombre())) {
             result.rejectValue("nombre", "error.categoria", "Ya existe una categoría con este nombre");
             return "categoria/formulario";
@@ -51,7 +51,7 @@ public class CategoriaController {
         
         categoriaService.guardar(categoria);
         attributes.addFlashAttribute("mensaje", "Categoría guardada exitosamente");
-        return "redirect:/categoria";
+        return "redirect:/categorias"; 
     }
 
     @GetMapping("/editar/{id}")
@@ -61,7 +61,7 @@ public class CategoriaController {
             model.addAttribute("categoria", categoria.get());
             return "categoria/formulario";
         }
-        return "redirect:/categoria";
+        return "redirect:/categorias";
     }
 
     @GetMapping("/eliminar/{id}")
@@ -72,6 +72,6 @@ public class CategoriaController {
         } catch (Exception e) {
             attributes.addFlashAttribute("error", "No se pudo eliminar la categoría, asegúrese de que no tenga libros asociados");
         }
-        return "redirect:/categoria";
+        return "redirect:/categorias";
     }
 }

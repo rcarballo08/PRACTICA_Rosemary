@@ -1,15 +1,78 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/plantilla :: head('Lista de Usuarios')}"></head>
+<body>
+    <header th:replace="~{layout/plantilla :: header}"></header>
+    <nav th:replace="~{layout/plantilla :: navbar}"></nav>
+ 
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Gestión de Usuarios</h3>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-light">
+                            <i class="bi bi-person-plus"></i> Nuevo Usuario
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Mensajes -->
+                <div class="alert alert-success" th:if="${mensaje != null}" th:text="${mensaje}"></div>
+                <div class="alert alert-danger" th:if="${error != null}" th:text="${error}"></div>
+                
+                <!-- Sin usuarios -->
+                <div th:if="${usuarios == null || usuarios.isEmpty()}" class="alert alert-info">
+                    No hay usuarios registrados.
+                </div>
+                
+                <!-- Tabla de usuarios -->
+                <div th:if="${usuarios != null && !usuarios.isEmpty()}" class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Roles</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="usuario : ${usuarios}">
+                                <td th:text="${usuario.id}"></td>
+                                <td th:text="${usuario.username}"></td>
+                                <td th:text="${usuario.nombre + ' ' + usuario.apellido}"></td>
+                                <td th:text="${usuario.email}"></td>
+                                <td>
+                                    <span th:if="${usuario.roles != null}" th:each="rol : ${usuario.roles}" 
+                                          class="badge bg-secondary me-1" th:text="${rol.nombre}"></span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/admin/usuarios/editar/{id}(id=${usuario.id})}" 
+                                           class="btn btn-sm btn-warning me-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:href="@{/admin/usuarios/eliminar/{id}(id=${usuario.id})}" 
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('¿Estás seguro de eliminar este usuario?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <footer th:replace="~{layout/plantilla :: footer}"></footer>
+</body>
 </html>

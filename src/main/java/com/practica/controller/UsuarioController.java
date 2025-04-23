@@ -51,7 +51,7 @@ public class UsuarioController {
             return "usuario/registro";
         }
         
-        // Asignar rol de usuario por defecto
+        // Asignamos rol de usuario por defecto
         Optional<Rol> rolUsuario = rolDao.findByNombre("USER");
         if (rolUsuario.isPresent()) {
             Set<Rol> roles = new HashSet<>();
@@ -91,19 +91,19 @@ public class UsuarioController {
             return "usuario/formulario";
         }
         
-        // Verificar si el username ya existe esto seria solo para nuevos usuarios 
+        // Verificamos si el username ya existe esto seria solo para nuevos usuarios 
         if (usuario.getId() == null && usuarioService.existeUsername(usuario.getUsername())) {
             result.rejectValue("username", "error.usuario", "Este nombre de usuario ya está en uso");
             return "usuario/formulario";
         }
         
-        // Verificar si el email ya existe esto seria para nuevos usuarios 
+        // Verificamos si el email ya existe, esto seria para nuevos usuarios 
         if (usuario.getId() == null && usuarioService.existeEmail(usuario.getEmail())) {
             result.rejectValue("email", "error.usuario", "Este correo electrónico ya está registrado");
             return "usuario/formulario";
         }
         
-        // Asignar roles seleccionados
+        // Asignamos los roles seleccionados
         if (roles != null && !roles.isEmpty()) {
             Set<Rol> userRoles = new HashSet<>();
             for (Long rolId : roles) {
@@ -111,7 +111,7 @@ public class UsuarioController {
             }
             usuario.setRoles(userRoles);
         } else {
-            // Si no se seleccionó ningún rol, asignar rol USER por defecto
+            // Si no se seleccionó ningún rol, asignamos el rol USER por defecto
             rolDao.findByNombre("USER").ifPresent(rol -> {
                 Set<Rol> userRoles = new HashSet<>();
                 userRoles.add(rol);
@@ -131,7 +131,7 @@ public class UsuarioController {
         if (usuario.isPresent()) {
             model.addAttribute("usuario", usuario.get());
             model.addAttribute("roles", rolDao.findAll());
-            // Extraer IDs de roles para selección múltiple
+            // Extraemos IDs de roles para la selección múltiple
             Set<Long> rolesIds = new HashSet<>();
             usuario.get().getRoles().forEach(rol -> rolesIds.add(rol.getId()));
             model.addAttribute("selectedRoles", rolesIds);
